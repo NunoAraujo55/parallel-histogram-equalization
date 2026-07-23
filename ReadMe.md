@@ -90,6 +90,38 @@ For the `forkjoin` and `computableFutures` modes, the number of threads paramete
 
 ---
 
+## Garbage Collector Configuration
+
+To test with different garbage collectors, use the following JVM flags:
+
+### G1 (default)
+```bash
+java -Xmx12g -XX:+UseG1GC -cp out ApplyFilters src3.jpg sequential 0
+```
+
+### Shenandoah
+```bash
+java -Xmx12g -XX:+UseShenandoahGC -cp out ApplyFilters src3.jpg sequential 0
+```
+
+### ZGC
+```bash
+java -Xmx12g -XX:+UseZGC -cp out ApplyFilters src3.jpg sequential 0
+```
+
+### With GC logging enabled
+Append `-Xlog:gc*:file=<logfile>` to capture detailed GC metrics:
+
+```bash
+java -Xmx12g -XX:+UseG1GC "-Xlog:gc*:file=gc_g1.log" -cp out ApplyFilters src3.jpg sequential 0
+java -Xmx12g -XX:+UseShenandoahGC "-Xlog:gc*:file=gc_shenandoah.log" -cp out ApplyFilters src3.jpg sequential 0
+java -Xmx12g -XX:+UseZGC "-Xlog:gc*:file=gc_zgc.log" -cp out ApplyFilters src3.jpg sequential 0
+```
+
+The log files contain pause times, memory reclaimed, and collection frequency for each GC.
+
+---
+
 ## Benchmark Methodology
 
 The benchmarking process follows a controlled execution model:
@@ -148,9 +180,6 @@ threadpool | Time: 45ms | Mem: 60.12 MB | Threads: 4
 ---
 
 ## Notes
-
-- `System.gc()` is invoked between runs to reduce memory-related interference, though it does not guarantee full garbage collection
-- `Thread.sleep(200)` introduces a delay to stabilize execution between iterations
 - Performance results may vary depending on:
     - CPU architecture
     - number of available cores
